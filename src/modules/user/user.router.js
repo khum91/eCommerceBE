@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import userControl from './user.controller.js';
 import checkLogin from '../../middleware/auth.middleware.js';
-import allowUser from '../../middleware/rbac.moddleware.js';
+import allowUser from '../../middleware/rbac.middeleware.js';
 import {uploder, setPath} from '../../middleware/uploader.middleware.js';
 import bodyValidator from '../../middleware/validator.middleware.js';
 import UserCreateDto from './user.request.js';
