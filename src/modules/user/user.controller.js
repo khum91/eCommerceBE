@@ -4,9 +4,19 @@ class UserController {
     userCreate = async (req, res, next) => {
         try {
             const data = UserService.transformUserCreate(req)
-            await UserService.sendActivationEmail({ to: data.email, name: data.name, token: data.activationToken })
+            const user = await UserService.storeUser(data)
+
+            await UserService.sendActivationEmail({ to: user.data.email, name: user.data.name, token: user.data.activationToken })
             res.json({
-                result: data,
+                result: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    address: user.address,
+                    activationToken: user.activationToken,
+                    activeFor: user.activeFor
+                },
                 message: "User Create",
                 meta: null
             });

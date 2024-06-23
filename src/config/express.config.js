@@ -1,4 +1,5 @@
 import express from 'express';
+import './db.config.js';
 import route from '../routes/router.config.js'
 
 
