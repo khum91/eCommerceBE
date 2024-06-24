@@ -1,12 +1,12 @@
 import UserService from './user.service.js';
+import emailNotify from '../notifications/notifications.js'
 
 class UserController {
     userCreate = async (req, res, next) => {
         try {
             const data = UserService.transformUserCreate(req)
             const user = await UserService.storeUser(data)
-
-            await UserService.sendActivationEmail({ to: user.data.email, name: user.data.name, token: user.data.activationToken })
+            await emailNotify.sendActivationEmail({ to: user.email, name: user.name, token: user.activationToken })
             res.json({
                 result: {
                     _id: user._id,
@@ -15,7 +15,7 @@ class UserController {
                     phone: user.phone,
                     address: user.address,
                     activationToken: user.activationToken,
-                    activeFor: user.activeFor
+                    activeFor: user.activateFor
                 },
                 message: "User Create",
                 meta: null
