@@ -1,6 +1,6 @@
 import {deleteFile} from '../utilities/helper.js';
 const bodyValidator = (schema) => {
-    return async (req, res, next) => {
+        return async (req, res, next) => {
         try {
             const data = req.body;
 

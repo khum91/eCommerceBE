@@ -1,4 +1,5 @@
 import userService from "../user/user.service.js";
+import patModel from "./pat.model.js";
 
 class AuthService {
     validateActivationToken = async (token) => {
@@ -17,6 +18,37 @@ class AuthService {
             throw error
         }
     }
+    populatePat = async (userId, { token, refreshToken }) => {
+        try {
+            const pat = new patModel({
+                userId: userId,
+                accessToken: token,
+                refreshToken: refreshToken
+            })
+            return await pat.save()
+        } catch (error) {
+            throw (error)
+
+        }
+    }
+
+    getPatData = async (filter) => {
+        try {
+            const pat = await patModel.findOne(filter)
+            return pat
+        } catch (error) {
+            throw error
+        }
+    }
+
+    deletePat = async (filter) => {
+        try {
+            return await patModel.deleteMany(filter)
+        } catch (error) {
+            throw error
+        }
+    }
+
 }
 
 const authService = new AuthService;

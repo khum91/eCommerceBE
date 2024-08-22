@@ -1,5 +1,5 @@
 const UserTypes = {
-    AMIND: 'admin',
+    ADMIN: 'admin',
     SELLER: 'seller',
     CUSTOMER: 'customer'
 }

@@ -10,8 +10,8 @@ class emailNotification {
                 message: `<p>Dear ${name},<p>
             <p>Your account has been created successfully.<p>
             <p>Please click in the link link below or copy the URL in the browser for further action.<p>
-            <a href ='${process.env.FRONTEND_URL}/activate/${token}'>
-            ${process.env.FRONTEND_URL}/activate/${token}</a>
+            <a href ='${process.env.FRONTEND_URL}/auth/activate/${token}'>
+            ${process.env.FRONTEND_URL}/auth/activate/${token}</a>
             <hr/>
             <p>Regards</p>
             <p>System Admin</p>

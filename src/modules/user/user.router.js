@@ -2,7 +2,7 @@ import { Router } from 'express';
 import userControl from './user.controller.js';
 import checkLogin from '../../middleware/auth.middleware.js';
 import allowUser from '../../middleware/rbac.middeleware.js';
-import {uploder, setPath} from '../../middleware/uploader.middleware.js';
+import {uploader, setPath} from '../../middleware/uploader.middleware.js';
 import bodyValidator from '../../middleware/validator.middleware.js';
 import UserCreateDto from './user.request.js';
 
@@ -19,7 +19,7 @@ userRoute.route('/')
     .get(userControl.userList )
 
     //Create User
-    .post(setPath('/user'), uploder.single('image'),bodyValidator(UserCreateDto), userControl.userCreate);
+    .post(setPath('/user'), uploader.single('image'),bodyValidator(UserCreateDto), userControl.userCreate);
 
 //for  '/:id' pattern
 userRoute.route('/:id')

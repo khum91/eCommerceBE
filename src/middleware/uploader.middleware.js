@@ -22,7 +22,7 @@ const mystorage = multer.diskStorage({
     }
 });
 
-const uploder = multer({
+const uploader = multer({
     storage: mystorage,
     fileFilter:(req, file, cb)=>{
         const ext =file.originalname.split('.').pop()
@@ -39,7 +39,6 @@ const uploder = multer({
     }
 });
 
-
 const setPath = (path) => {
     return (req, res, next) => {
         req.upLoadPath = path;
@@ -48,4 +47,4 @@ const setPath = (path) => {
 }
 
 
-export { uploder, setPath};
+export { uploader, setPath};
