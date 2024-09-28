@@ -18,7 +18,7 @@ class BannerService {
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
-            const count = await bannerModel.find(filter).count();
+            const count = await bannerModel.countDocuments();
             return { data, count }
         } catch (error) {
             throw error

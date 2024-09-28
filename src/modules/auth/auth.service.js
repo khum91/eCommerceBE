@@ -7,7 +7,7 @@ class AuthService {
             if (!token) {
                 throw { status: 400, message: 'Token required for activation' };
             }
-            const user = await userService.getSingleUserByFilter({ activationToken: token })
+            const user = await userService.getLoginUser({ activationToken: token })
             if (!user) {
                 throw { status: 404, message: 'Token not found or broken' }
             }

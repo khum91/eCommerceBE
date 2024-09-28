@@ -1,24 +1,20 @@
-import slugify from "slugify"
-import brandService from "./brand.service.js"
-import brandModel from "./brand.model.js"
 import { deleteFile } from "../../utilities/helper.js";
-class BrandController {
+import productModel from "./product.model.js";
+import productService from "./product.service.js";
+class ProductController {
     #id;
-    #brand;
-
+    #product;
     create = async (req, res, next) => {
         try {
             const data = req.body
             if (req.file) {
                 data.image = req.file.filename
             }
-            data.slug = slugify(data.name, { lower: true })
             data.createdBy = req.authUser._id
-            const brand = await brandService.store(data)
-
+            const product = await productService.store(data)
             res.json({
-                result: brand,
-                message: "Brand created successfully",
+                result: product,
+                message: "Product created successfully",
                 meta: null
             })
 
@@ -44,7 +40,7 @@ class BrandController {
                     { status: new RegExp(req.query.search, 'i') }]
                 }
             }
-            const { data, count } = await brandService.listAllData({
+            const { data, count } = await productService.listAllData({
                 limit: limit,
                 skip: skip,
                 sort: sorting,
@@ -52,7 +48,7 @@ class BrandController {
             })
             res.json({
                 result: data,
-                message: 'Brand List',
+                message: 'Product List',
                 meta: {
                     currentPage: page,
                     total: count,
@@ -67,12 +63,36 @@ class BrandController {
         }
     }
 
+    options = async (req, res, next) => {
+        try {
+            const data = await productService.options({
+            })
+            res.json(data)
+
+        } catch (error) {
+            next(error)
+
+        }
+    }
+
+    productAsCategory = async (req, res, next) => {
+        try {
+            this.#id = req.params.id;
+            const sorting = req.query.sort1
+            const data = await productService.productAsCategory({ _id: this.#id }, sorting)
+            res.json(data)
+        } catch (error) {
+            next(error)
+
+        }
+    }
+
     #validateId = async (req) => {
         try {
             this.#id = req.params.id;
-            this.#brand = await brandService.getSingleDataByFilter({ _id: this.#id })
-            if (!this.#brand) {
-                throw { status: 404, message: 'Brand not found' }
+            this.#product = await productService.getSingleDataByFilter({ _id: this.#id })
+            if (!this.#product) {
+                throw { status: 404, message: 'Product not found' }
             }
         } catch (e) {
             throw e
@@ -84,7 +104,7 @@ class BrandController {
             if (req.authUser.role !== 'admin') {
                 this.#id = req.params.id;
                 const currentId = req.authUser._id
-                const author = await brandModel.find({ _id: this.#id, createdBy: currentId }, { _id: 0, createdBy: 1 })
+                const author = await productModel.find({ _id: this.#id, createdBy: currentId }, { _id: 0, createdBy: 1 })
                 if (author.length == 0) {
                     res.json({
                         result: 'notallowed',
@@ -101,12 +121,11 @@ class BrandController {
     }
 
     show = async (req, res, next) => {
-        console.log('here')
         try {
             await this.#validateId(req)
             res.json({
-                result: this.#brand,
-                message: 'Brand Detail',
+                result: this.#product,
+                message: 'Product Detail',
                 meta: null
             })
         } catch (error) {
@@ -117,18 +136,18 @@ class BrandController {
     update = async (req, res, next) => {
         try {
             await this.#validateId(req)
-
             const data = req.body
             if (req.file) {
                 data.image = req.file.filename
             }
-            const response = await brandService.updateById(this.#id, data)
+            data.createdBy = req.authUser._id
+            const response = await productService.updateById(this.#id, data)
             if (req.file) {
-                deleteFile('./public/uploads/brands/' + response.image)
+                deleteFile('./public/uploads/products/' + response.image)
             }
             res.json({
                 result: data,
-                message: 'Brand Updated Successfully',
+                message: 'Product Updated Successfully',
                 meta: null
             })
 
@@ -142,48 +161,20 @@ class BrandController {
     delete = async (req, res, next) => {
         try {
             await this.#validateId(req)
-            const response = await brandService.deleteById(this.#id)
+            const response = await productService.deleteById(this.#id)
             if (response.image) {
-                deleteFile('./public/uploads/brands/' + response.image)
+                deleteFile('./public/uploads/products/' + response.image)
             }
 
             res.json({
                 result: null,
-                message: 'Brand deleted successfully.',
+                message: 'Product deleted successfully.',
                 meta: null
             })
         } catch (error) {
             next(error)
         }
     }
-
-    getBySlug = async (req, res, next) => {
-        try {
-            const slug = req.params.slug
-            const brand = await brandService.getSingleDataByFilter({ slug: slug })
-            if (!brand) {
-                throw { status: 404, message: 'Brand does not exists' }
-            }
-
-            //TODO: Fetch product list by Brand
-            res.json({
-                result: {
-                    detail: brand,
-                    product: null
-                },
-                meta: {
-                    total: 0,
-                    currentPage: 1,
-                    limit: 15,
-                    totalPage: 0
-                },
-                message: 'Brand detail with product'
-            })
-        } catch (error) {
-            next(error)
-
-        }
-    }
-
 }
-export default new BrandController
+
+export default new ProductController;

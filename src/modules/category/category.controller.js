@@ -1,32 +1,27 @@
 import slugify from "slugify"
-import catagoryService from "./catagory.service.js"
+import categoryService from "./category.service.js"
+import categoryModel from "./category.model.js";
 import { deleteFile } from "../../utilities/helper.js";
-class CatagoryController {
+class CategoaryController {
     #id;
-    #catagory;
+    #category;
     #validateParentAndBrands = async (data) => {
         try {
             if (data.parent) {
                 const parentname = data.parent;
-                const parentData = await catagoryService.getSingleDataByFilter({ name: parentname })
+                const parentData = await categoryService.getSingleDataByFilter({ _id: parentname })
                 if (!parentData) {
-                    throw { status: 404, message: 'Parent catagory not found' }
-                } else {
-                    const parentId = parentData._id
-                    data.parentid = parentId
+                    throw { status: 404, message: 'Parent category not found' }
                 }
             } else {
                 data.parent = null;
             }
             if (data.brand) {
                 const brand = data.brand
-                const filter = { name: { $in: ['Samsung', 'Philips'] } }
-                const brandId = await catagoryService.getMultiDataByFilter(filter)
-
+                const filter = { _id: { $in: [brand] } }
+                const brandId = await categoryService.getMultiDataByFilter({ filter })
                 if (!brandId) {
                     throw { status: 404, message: 'Brand not found' }
-                } else {
-                    data.brands = brandId
                 }
             } else {
                 data.brand = null
@@ -45,15 +40,15 @@ class CatagoryController {
             }
             data.slug = slugify(data.name, { lower: true })
             data.createdBy = req.authUser._id
-            const catagory = await catagoryService.store(data)
-
+            const category = await categoryService.store(data)
             res.json({
-                result: catagory,
-                message: "Catagory created successfully",
+                result: category,
+                message: "Categoary created successfully",
                 meta: null
             })
 
         } catch (error) {
+            console.log(error)
             next(error)
         }
 
@@ -75,7 +70,7 @@ class CatagoryController {
                     { status: new RegExp(req.query.search, 'i') }]
                 }
             }
-            const { data, count } = await catagoryService.listAllData({
+            const { data, count } = await categoryService.listAllData({
                 limit: limit,
                 skip: skip,
                 sort: sorting,
@@ -83,7 +78,7 @@ class CatagoryController {
             })
             res.json({
                 result: data,
-                message: 'Catagory List',
+                message: 'Categoary List',
                 meta: {
                     currentPage: page,
                     total: count,
@@ -98,29 +93,64 @@ class CatagoryController {
         }
     }
 
+    options = async (req, res, next) => {
+        try {
+            const data = await categoryService.options({
+            })
+            res.json(data)
+
+        } catch (error) {
+            next(error)
+
+        }
+    }
+
     #validateId = async (req) => {
         try {
             this.#id = req.params.id;
-            this.#catagory = await catagoryService.getSingleDataByFilter({ _id: this.#id })
-            if (!this.#catagory) {
-                throw { status: 404, message: 'Catagory not found' }
+            this.#category = await categoryService.getSingleDataByFilter({ _id: this.#id })
+            if (!this.#category) {
+                throw { status: 404, message: 'Categoary not found' }
             }
         } catch (e) {
             throw e
         }
     }
+    checkauthor = async (req, res, next) => {
+        try {
+            if (req.authUser.role !== 'admin') {
+                this.#id = req.params.id;
+                const currentId = req.authUser._id
+                const author = await categoryModel.find({ _id: this.#id, createdBy: currentId }, { _id: 0, createdBy: 1 })
+                if (author.length == 0) {
+                    res.json({
+                        result: 'notallowed',
+                        message: 'You cannot modify entities created by others.',
+                        meta: null
+                    })
+                    return
+                }
+            }
+            next()
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
+
+
     show = async (req, res, next) => {
         try {
             await this.#validateId(req)
             res.json({
-                result: this.#catagory,
-                message: 'Catagory Detail',
+                result: this.#category,
+                message: 'Categoary Detail',
                 meta: null
             })
         } catch (error) {
             next(error)
         }
-
     }
     update = async (req, res, next) => {
         try {
@@ -132,13 +162,13 @@ class CatagoryController {
             await this.#validateParentAndBrands(data)
             data.slug = slugify(data.name, { lower: true })
             data.createdBy = req.authUser._id
-            const response = await catagoryService.updateById(this.#id, data)
+            const response = await categoryService.updateById(this.#id, data)
             if (req.file) {
-                deleteFile('./public/uploads/catagories/' + response.image)
+                deleteFile('./public/uploads/categories/' + response.image)
             }
             res.json({
                 result: data,
-                message: 'Catagory Updated Successfully',
+                message: 'Categoary Updated Successfully',
                 meta: null
             })
 
@@ -146,20 +176,18 @@ class CatagoryController {
             next(error)
 
         }
-
-
     }
     delete = async (req, res, next) => {
         try {
             await this.#validateId(req)
-            const response = await catagoryService.deleteById(this.#id)
+            const response = await categoryService.deleteById(this.#id)
             if (response.image) {
-                deleteFile('./public/uploads/catagories/' + response.image)
+                deleteFile('./public/uploads/categories/' + response.image)
             }
 
             res.json({
                 result: null,
-                message: 'Catagory deleted successfully.',
+                message: 'Categoary deleted successfully.',
                 meta: null
             })
         } catch (error) {
@@ -168,4 +196,4 @@ class CatagoryController {
     }
 }
 
-export default new CatagoryController;
+export default new CategoaryController;

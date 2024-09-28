@@ -12,9 +12,11 @@ class UserService {
         data.status = 'inactive'
         data.activationToken = randomString(30)
         data.activateFor = new Date(Date.now() + (3 * 36 * 36 * 1000))
+        if (req.authUser) {
+            data.createdBy = req.authUser._id
+        }
         return data;
     }
-
 
     storeUser = async (data) => {
         try {
@@ -28,6 +30,16 @@ class UserService {
 
 
     getSingleUserByFilter = async (filter) => {
+        try {
+            const user = await UserModel.findOne(filter, { password: 0 })
+                .populate('createdBy', ['_id', 'name'])
+            return user
+        } catch (e) {
+            throw e
+        }
+    }
+
+    getLoginUser = async (filter) => {
         try {
             const user = await UserModel.findOne(filter)
             return user
@@ -55,6 +67,7 @@ class UserService {
                         _id: '$_id',
                         name: '$name',
                         email: '$email',
+                        image: '$image',
                         role: '$role',
                         status: '$status',
                         message: '$message'
@@ -68,6 +81,42 @@ class UserService {
         } catch (e) {
             throw e
         }
+    }
+
+    listAllData = async ({ limit = 10, skip = 0, sort = { _id: 'desc' }, filter = {} }) => {
+        try {
+            const data = await UserModel.find(filter)
+                .populate('createdBy', ['_id', 'name'])
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+            const count = await UserModel.countDocuments();
+            return { data, count }
+        } catch (error) {
+            throw error
+        }
+    }
+
+    updateById = async (id, data) => {
+        try {
+            const response = await UserModel.findByIdAndUpdate(id, { $set: data })
+            return response
+        } catch (error) {
+            throw error
+        }
+    }
+
+    deleteById = async (id) => {
+        try {
+            const response = await UserModel.findByIdAndDelete(id)
+            if (!response) {
+                throw { Status: 404, message: 'User does not exixts' }
+            }
+            return response
+        } catch (error) {
+            throw error
+        }
+
     }
 }
 

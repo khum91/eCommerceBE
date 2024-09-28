@@ -1,36 +1,33 @@
 import { Router } from 'express';
-import userControl from './user.controller.js';
+import UserCreateDto from './user.request.js';
+import userController from './user.controller.js';
 import checkLogin from '../../middleware/auth.middleware.js';
 import allowUser from '../../middleware/rbac.middeleware.js';
-import {uploader, setPath} from '../../middleware/uploader.middleware.js';
+import { uploader, setPath } from '../../middleware/uploader.middleware.js';
 import bodyValidator from '../../middleware/validator.middleware.js';
-import UserCreateDto from './user.request.js';
+import { UserTypes } from "../../config/constants.js";
 
 const userRoute = Router();
 
-userRoute.use(checkLogin, allowUser);
-
-
-
 // for '' pattern
 userRoute.route('/')
+    //Create User
+    .post(checkLogin, allowUser(UserTypes.ADMIN), setPath('/users'),
+        uploader.single('image'), bodyValidator(UserCreateDto), userController.userCreate)
 
     //User List
-    .get(userControl.userList )
-
-    //Create User
-    .post(setPath('/user'), uploader.single('image'),bodyValidator(UserCreateDto), userControl.userCreate);
+    .get(checkLogin, allowUser(UserTypes.ADMIN), userController.index)
 
 //for  '/:id' pattern
 userRoute.route('/:id')
-
     // User Details
-    .get(userControl.userDetails)
+    .get(checkLogin, allowUser(UserTypes.ADMIN), userController.userDetails)
 
     //User Update
-    .put(userControl.userUpdate)
+    .put(checkLogin, allowUser([UserTypes.ADMIN, UserTypes.SELLER, UserTypes.CUSTOMER]), setPath('/users'),
+        uploader.single('image'), userController.userUpdate)
 
     //User Delete
-    .delete(userControl.userDelete);
+    .delete(userController.userDelete);
 
 export default userRoute;

@@ -18,7 +18,7 @@ class BrandService {
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
-            const count = await brandModel.find(filter);
+            const count = await brandModel.countDocuments();
             return { data, count }
         } catch (error) {
             throw error

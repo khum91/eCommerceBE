@@ -8,17 +8,17 @@ import BrandCreateDto from "./brand.request.js";
 import brandController from "./brand.controller.js";
 
 const brandRoute = Router();
-brandRoute.get('/:slug/detail',brandController.getBySlug)
+brandRoute.get('/:slug/detail', brandController.getBySlug)
 brandRoute.route('/')
     .post(checkLogin, allowUser([UserTypes.ADMIN, UserTypes.SELLER]), setPath('/brands'),
         uploader.single('image'), bodyValidator(BrandCreateDto), brandController.create)
-    .get(checkLogin, allowUser(UserTypes.ADMIN), brandController.index)
+    .get(checkLogin, allowUser([UserTypes.ADMIN, UserTypes.SELLER]), brandController.index)
 
 brandRoute.route('/:id')
-    .get(checkLogin, allowUser(UserTypes.ADMIN), brandController.show)
-    .put(checkLogin, allowUser(UserTypes.ADMIN), setPath('/brands'),
+    .get(checkLogin, allowUser([UserTypes.ADMIN, UserTypes.SELLER]), brandController.checkauthor, brandController.show)
+    .put(checkLogin, allowUser([UserTypes.ADMIN, UserTypes.SELLER]), setPath('/brands'),
         uploader.single('image'), bodyValidator(BrandCreateDto), brandController.update)
-    .delete(checkLogin, allowUser(UserTypes.ADMIN), brandController.delete)
+    .delete(checkLogin, allowUser([UserTypes.ADMIN, UserTypes.SELLER]), brandController.checkauthor, brandController.delete)
 
 
 export default brandRoute

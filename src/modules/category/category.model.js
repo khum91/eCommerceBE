@@ -1,7 +1,7 @@
 
 import mongoose from "mongoose";
 import { GeneralStatus } from "../../config/constants.js";
-const catagorySchema = new mongoose.Schema({
+const categorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -18,13 +18,13 @@ const catagorySchema = new mongoose.Schema({
         enum: [...Object.values(GeneralStatus)],
         default: GeneralStatus.INACTIVE
     },
-    parentid: {
+    parent: {
         type: mongoose.Types.ObjectId,
-        ref: 'Catagory',
+        ref: 'Category',
         default: null
     },
     image: String,
-    brands: [{
+    brand: [{
         type: mongoose.Types.ObjectId,
         ref: 'Brand',
         default: null
@@ -40,5 +40,5 @@ const catagorySchema = new mongoose.Schema({
     autoIndex: true
 })
 
-const catagoryModel = new mongoose.model("Catagory", catagorySchema)
-export default catagoryModel;
+const categoryModel = new mongoose.model("Category", categorySchema)
+export default categoryModel;

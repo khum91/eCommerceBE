@@ -8,10 +8,10 @@ mongoose.connect(process.env.MONGODB_URL,
         autoCreate: true,
         autoIndex: true
     }
-).then(()=>{
+).then(() => {
     console.log('DB connected')
-}).catch((e)=>{
+}).catch((e) => {
     console.log(e)
-console.log('Error in connection with DB');
-process.exit(1);
+    console.log('Error in connection with DB');
+    process.exit(1);
 })

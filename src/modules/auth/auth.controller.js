@@ -61,7 +61,7 @@ class AuthController {
     login = async (req, res, next) => {
         try {
             const { email, password } = req.body
-            const userExists = await userService.getSingleUserByFilter({ email: email })
+            const userExists = await userService.getLoginUser({ email: email })
 
             if (!userExists) {
                 throw { status: 400, message: 'Invalid credentials provided' }
@@ -111,6 +111,9 @@ class AuthController {
 
     getLoggedInUser = async (req, res, next) => {
         try {
+
+
+            
             res.json({
                 result: req.authUser,
                 meta: null,
